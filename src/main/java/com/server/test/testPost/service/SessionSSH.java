@@ -40,17 +40,14 @@ public class SessionSSH {
         }
 
         try {
-            Session session = client.startSession();
-            try {
+            try (Session session = client.startSession()) {
                 Session.Command cmd = session.exec(command);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
                 String line;
-
+                session.close();
                 while ((line = reader.readLine()) != null) {
                     outputResponse.append(line);
                 }
-            }finally {
-                session.close();
             }
         } finally {
             client.disconnect();

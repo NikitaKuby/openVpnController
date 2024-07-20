@@ -2,9 +2,17 @@ package com.server.test.testPost.dto;
 
 import lombok.Data;
 
-import java.util.List;
 
 @Data
 public class ResponseDto {
-    private List<String> clients;
+    private boolean ok;
+    private ResultDTO result;
+
+    public ResponseDto(boolean ok, ResultDTO result) {
+        this.ok = ok;
+        this.result = result;
+    }
+    public ResponseDto(boolean ok) {
+        this.ok = ok;
+    }
 }

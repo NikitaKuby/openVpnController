@@ -12,7 +12,7 @@ public class ConfigSSH {
 
     public String getEnvPrivateKey() {
         if (envPrivateKey == null) {
-            return "/.ssh/id_rsa";
+            return "C:/Users/nikit/.ssh/id_rsa";
         }
         return envPrivateKey;
     }

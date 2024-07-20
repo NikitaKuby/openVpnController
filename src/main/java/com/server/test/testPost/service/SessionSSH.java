@@ -1,6 +1,8 @@
 package com.server.test.testPost.service;
 
 import com.server.test.testPost.config.ConfigSSH;
+import com.server.test.testPost.dto.ResponseDto;
+import com.server.test.testPost.dto.ResultDTO;
 import lombok.extern.slf4j.Slf4j;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -17,21 +19,28 @@ import java.io.InputStreamReader;
 @Slf4j
 @Service
 public class SessionSSH {
-    public String SetCommandGetResponse(String command) throws IOException {
+    public ResponseDto SetCommandGetResponse(String command) throws IOException {
 
         StringBuilder outputResponse = new StringBuilder();
-
-        ConfigSSH configSSH=new ConfigSSH();
-        File privateKeyFile = new File(configSSH.getEnvPrivateKey());
-
-        final SSHClient client = new SSHClient();
-        client.addHostKeyVerifier(new PromiscuousVerifier());
-        KeyProvider privateKey = client.loadKeys(privateKeyFile.getPath());
-        client.connect(configSSH.getEnvHost(), configSSH.getEnvPort());
-        client.authPublickey(configSSH.getEnvUsername(), privateKey);
+        SSHClient client = new SSHClient();
 
         try {
-            final Session session = client.startSession();
+            ConfigSSH configSSH=new ConfigSSH();
+            File privateKeyFile = new File(configSSH.getEnvPrivateKey());
+
+            client.addHostKeyVerifier(new PromiscuousVerifier());
+            KeyProvider privateKey = client.loadKeys(privateKeyFile.getPath());
+            client.connect(configSSH.getEnvHost(), configSSH.getEnvPort());
+            client.authPublickey(configSSH.getEnvUsername(), privateKey);
+
+        }catch (IOException e){
+            ResultDTO error = new ResultDTO();
+            error.setError("Client ssh no connection");
+            return new ResponseDto(false, error);
+        }
+
+        try {
+            Session session = client.startSession();
             try {
                 Session.Command cmd = session.exec(command);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
@@ -40,14 +49,18 @@ public class SessionSSH {
                 while ((line = reader.readLine()) != null) {
                     outputResponse.append(line);
                 }
-            } finally {
+            }finally {
                 session.close();
             }
         } finally {
             client.disconnect();
         }
-        return outputResponse.toString();
+
+        ResultDTO outputResurces = new ResultDTO();
+        outputResurces.setReturnText(outputResponse.toString());
+        return new ResponseDto(true, outputResurces);
     }
+
 
 
 

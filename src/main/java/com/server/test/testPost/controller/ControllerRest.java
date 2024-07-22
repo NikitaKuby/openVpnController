@@ -6,8 +6,8 @@ import com.server.test.testPost.enums.Comd;
 import com.server.test.testPost.service.SessionSSH;
 import com.server.test.testPost.service.TransformationToJson;
 import com.server.test.testPost.service.ValidationClients;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +15,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
-@AllArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/openvpn")
-public class ControllerRest {
+@RequestMapping(value = "/openvpn")
+public class ControllerRest{
     SessionSSH sessionSSH;
+
+    @Autowired
+    public ControllerRest(SessionSSH sessionSSH) {
+        this.sessionSSH = sessionSSH;
+    }
 
     @CrossOrigin
     @GetMapping(value = "/getClients",produces = MediaType.APPLICATION_JSON_VALUE)
@@ -37,6 +41,7 @@ public class ControllerRest {
 
     @CrossOrigin
     @GetMapping(value = "/addClient/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
+
     public ResponseEntity<?> addClients(@PathVariable String name) throws IOException {
         ResponseDto responseSSH = sessionSSH.SetCommandGetResponse("bash openvpn.sh"+" "+Comd.ADDCLIENTS.getTitle()+" "+name);
 
@@ -63,7 +68,7 @@ public class ControllerRest {
         } }
 
     @CrossOrigin
-    @GetMapping(value = "/watchClient/{name}")
+    @GetMapping(value = "/watchClient/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> watchClients(@PathVariable String name) throws IOException {
         ResponseDto responseSSH = sessionSSH.SetCommandGetResponse("cat "+ name+".ovpn");
         if (responseSSH.getResult().getReturnText().isEmpty()) {
@@ -71,8 +76,8 @@ public class ControllerRest {
             error.setError("No such client found");
             return new ResponseEntity<>(new TransformationToJson().transform(new ResponseDto(false,error)), HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(responseSSH.getResult().getReturnText(), HttpStatus.OK);
-        } }
-
+            return new ResponseEntity<>(new TransformationToJson().transform(responseSSH), HttpStatus.OK);
+        }
+    }
 
 }

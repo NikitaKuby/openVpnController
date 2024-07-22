@@ -44,7 +44,6 @@ public class SessionSSH {
                 Session.Command cmd = session.exec(command);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
                 String line;
-                session.close();
                 while ((line = reader.readLine()) != null) {
                     outputResponse.append(line);
                 }

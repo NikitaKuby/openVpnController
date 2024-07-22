@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
+
 @RestControllerAdvice
 public class ExceptionResolver {
 
@@ -21,6 +23,16 @@ public class ExceptionResolver {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(new TransformationToJson().transform(new ResponseDto(false, error)),headers, HttpStatus.OK);
+
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<?> ioexception() {
+        ResultDTO error2 = new ResultDTO();
+        error2.setError("Connection bad");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(new TransformationToJson().transform(new ResponseDto(false, error2)),headers, HttpStatus.OK);
 
     }
 }

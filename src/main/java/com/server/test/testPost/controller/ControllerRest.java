@@ -5,7 +5,6 @@ import com.server.test.testPost.dto.ResultDTO;
 import com.server.test.testPost.enums.Comd;
 import com.server.test.testPost.service.SessionSSH;
 import com.server.test.testPost.service.TransformationToJson;
-import com.server.test.testPost.service.ValidationClients;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,21 +28,16 @@ public class ControllerRest{
     @CrossOrigin
     @GetMapping(value = "/getClients",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getClients() throws IOException {
-        ResponseDto responseSSH = sessionSSH.SetCommandGetResponse("bash openvpn.sh " + Comd.LISTCLIENTS.getTitle());
-        if (responseSSH.isOk()) {
-            String json = new ValidationClients(responseSSH.getResult().getReturnText()).getResponseJson();
-            return new ResponseEntity<>(json, HttpStatus.OK);
-        } else {
-            String response = new TransformationToJson().transform(responseSSH);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+        ResponseDto responseSSH = sessionSSH.getResponse("bash openvpn.sh " + Comd.LISTCLIENTS.getTitle());
+        String listClients = sessionSSH.formatString(responseSSH.getResult().getReturnText());
+        return new ResponseEntity<>(listClients, HttpStatus.OK);
         }
-    }
 
     @CrossOrigin
     @GetMapping(value = "/addClient/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
 
     public ResponseEntity<?> addClients(@PathVariable String name) throws IOException {
-        ResponseDto responseSSH = sessionSSH.SetCommandGetResponse("bash openvpn.sh"+" "+Comd.ADDCLIENTS.getTitle()+" "+name);
+        ResponseDto responseSSH = sessionSSH.getResponse("bash openvpn.sh"+" "+Comd.ADDCLIENTS.getTitle()+" "+name);
 
         if (responseSSH.getResult().getReturnText().isEmpty()) {
             ResultDTO error = new ResultDTO();
@@ -57,7 +51,7 @@ public class ControllerRest{
     @CrossOrigin
     @GetMapping(value = "/revokeClient/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> revokeClients(@PathVariable String name) throws IOException {
-        ResponseDto responseSSH = sessionSSH.SetCommandGetResponse("bash openvpn.sh "+Comd.REVOKECLIENT.getTitle()
+        ResponseDto responseSSH = sessionSSH.getResponse("bash openvpn.sh "+Comd.REVOKECLIENT.getTitle()
                                                                     +" "+name+" "+Comd.YES.getTitle());
         if (responseSSH.getResult().getReturnText().isEmpty()) {
             ResultDTO error = new ResultDTO();
@@ -70,7 +64,7 @@ public class ControllerRest{
     @CrossOrigin
     @GetMapping(value = "/watchClient/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> watchClients(@PathVariable String name) throws IOException {
-        ResponseDto responseSSH = sessionSSH.SetCommandGetResponse("cat "+ name+".ovpn");
+        ResponseDto responseSSH = sessionSSH.getResponse("cat "+ name+".ovpn");
         if (responseSSH.getResult().getReturnText().isEmpty()) {
             ResultDTO error = new ResultDTO();
             error.setError("No such client found");

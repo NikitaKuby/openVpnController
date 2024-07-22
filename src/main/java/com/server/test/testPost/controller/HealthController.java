@@ -36,8 +36,7 @@ public class HealthController {
     public ResponseEntity<?> getCheck() throws IOException {
         String checkScript = "test -f 'openvpn.sh' && echo yes";
 
-        ResponseDto responseSSH = sessionSSH.SetCommandGetResponse(checkScript);
-        if (responseSSH.isOk()) {
+        ResponseDto responseSSH = sessionSSH.getResponse(checkScript);
             if (Objects.equals(responseSSH.getResult().getReturnText(), "yes")) {
                 return new ResponseEntity<>(new TransformationToJson().transform(new ResponseDto(true)), HttpStatus.OK);
             }else{
@@ -45,10 +44,6 @@ public class HealthController {
                 resultDTO.setError("Script openvpn not found");
                 return new ResponseEntity<>(new TransformationToJson().transform(new ResponseDto(false,resultDTO)), HttpStatus.OK);
             }
-        } else {
-            String response = new TransformationToJson().transform(responseSSH);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
     }
 
 

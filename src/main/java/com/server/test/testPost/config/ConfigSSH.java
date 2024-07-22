@@ -1,8 +1,12 @@
 package com.server.test.testPost.config;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class ConfigSSH {
 
     final private String envHost = System.getenv("VPN_SSH_SERVER_IP");

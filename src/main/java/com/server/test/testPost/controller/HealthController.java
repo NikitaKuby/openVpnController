@@ -2,7 +2,7 @@ package com.server.test.testPost.controller;
 
 import com.server.test.testPost.dto.ResponseDto;
 import com.server.test.testPost.dto.ResultDTO;
-import com.server.test.testPost.service.SessionSSH;
+import com.server.test.testPost.service.impl.ConnectionToOpenVpnFromSSH;
 import com.server.test.testPost.service.TransformationToJson;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.Objects;
 @RequestMapping("/openvpn/health")
 public class HealthController {
 
-    SessionSSH sessionSSH;
+    ConnectionToOpenVpnFromSSH sessionSSH;
 
     @CrossOrigin
     @GetMapping(value = "/availability",produces = MediaType.APPLICATION_JSON_VALUE)

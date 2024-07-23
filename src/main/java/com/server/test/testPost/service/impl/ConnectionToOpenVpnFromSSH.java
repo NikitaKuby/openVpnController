@@ -1,15 +1,16 @@
-package com.server.test.testPost.service;
+package com.server.test.testPost.service.impl;
 
 import com.google.gson.Gson;
 import com.server.test.testPost.config.ConfigSSH;
 import com.server.test.testPost.dto.ResponseDto;
 import com.server.test.testPost.dto.ResultDTO;
+import com.server.test.testPost.service.ConnectionToOpenVpn;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -21,14 +22,13 @@ import java.util.List;
 
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
-public class SessionSSH {
-    private final ConfigSSH configSSH;
-    @Autowired
-    public SessionSSH(ConfigSSH configSSH) {
-        this.configSSH = configSSH;
-    }
+public class ConnectionToOpenVpnFromSSH implements ConnectionToOpenVpn {
 
+    private final ConfigSSH configSSH;
+
+    @Override
     public ResponseDto getResponse(String command) throws IOException {
             String outputResponse = executeCommand(connectionToSSH(), command);
             ResultDTO outputResurces = new ResultDTO();
@@ -36,6 +36,7 @@ public class SessionSSH {
             return new ResponseDto(true, outputResurces);
     }
 
+    @Override
     public SSHClient connectionToSSH() throws IOException {
             SSHClient client = new SSHClient();
             File privateKeyFile = new File(configSSH.getEnvPrivateKey());
@@ -47,10 +48,11 @@ public class SessionSSH {
 
     }
 
+    @Override
     public void disconnectFromSSH(SSHClient client) throws IOException {
         client.disconnect();
     }
-
+    @Override
     public String executeCommand(SSHClient client, String command) throws IOException {
         StringBuilder outputResponse = new StringBuilder();
         try {
@@ -63,10 +65,9 @@ public class SessionSSH {
         }finally {
             disconnectFromSSH(client);
         }
-
         return outputResponse.toString();
     }
-
+    @Override
     public String formatString(String data){
         if(data.contains("There are no existing clients!")){
             ResultDTO resultDTO = new ResultDTO();

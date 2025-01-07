@@ -6,16 +6,20 @@ import com.server.test.testPost.enums.Comd;
 import com.server.test.testPost.service.SessionSSH;
 import com.server.test.testPost.service.TransformationToJson;
 import com.server.test.testPost.service.ValidationClients;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping(value = "/openvpn")
 public class ControllerRest{
@@ -42,7 +46,7 @@ public class ControllerRest{
     @CrossOrigin
     @GetMapping(value = "/addClient/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
 
-    public ResponseEntity<?> addClients(@PathVariable String name) throws IOException {
+    public ResponseEntity<?> addClients(@PathVariable("name") @Pattern(regexp = "^[a-z][a-z0-9-]*$") String name) throws IOException {
         ResponseDto responseSSH = sessionSSH.SetCommandGetResponse("bash openvpn.sh"+" "+Comd.ADDCLIENTS.getTitle()+" "+name);
 
         if (responseSSH.getResult().getReturnText().isEmpty()) {
